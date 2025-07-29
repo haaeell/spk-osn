@@ -4,6 +4,8 @@ use App\Http\Controllers\HasilController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\PenilaianController;
+use App\Http\Controllers\PerhitunganController;
+use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -18,17 +20,23 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::middleware('role:admin')->group(function () {
-    Route::resource('user', UserController::class)->except(['show']);
+    Route::resource('users', UserController::class)->except(['show']);
     Route::resource('siswa', SiswaController::class);
     Route::resource('kriteria', KriteriaController::class);
-});
-
-Route::middleware('role:penilai')->group(function () {
+    Route::get('perhitungan', [PerhitunganController::class, 'index'])->name('perhitungan.index');
     Route::get('penilaian', [PenilaianController::class, 'index'])->name('penilaian.index');
+    Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
+    Route::get('/riwayat/{tanggal}/detail', [RiwayatController::class, 'detail'])->name('riwayat.detail');
+    Route::get('/riwayat/{tanggal}/pdf', [RiwayatController::class, 'cetakPdf'])->name('riwayat.pdf');
+
     Route::get('penilaian/create', [PenilaianController::class, 'create'])->name('penilaian.create');
     Route::post('penilaian', [PenilaianController::class, 'store'])->name('penilaian.store');
+    Route::get('hasil', [HasilController::class, 'index'])->name('hasil.index');
+    Route::post('/hasil/simpan/{mapel}', [HasilController::class, 'simpan'])->name('hasil.simpan');
+    Route::get('/hasil/{id}/detail', [HasilController::class, 'detail'])->name('hasil.detail');
+    Route::get('/hasil/{id}/pdf', [HasilController::class, 'cetakPdf'])->name('hasil.pdf');
 });
 
-Route::middleware('role:kepala_sekolah')->group(function () {
-    Route::get('hasil', [HasilController::class, 'index'])->name('hasil.index');
-});
+Route::middleware('role:penilai')->group(function () {});
+
+Route::middleware('role:kepala_sekolah')->group(function () {});

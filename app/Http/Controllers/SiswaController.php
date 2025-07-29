@@ -13,15 +13,10 @@ class SiswaController extends Controller
         return view('siswa.index', compact('siswas'));
     }
 
-    public function create()
-    {
-        return view('siswa.create');
-    }
-
     public function store(Request $request)
     {
         $request->validate([
-            'nis' => 'required|unique:siswas',
+            'nis' => 'required|unique:siswa',
             'nama' => 'required',
             'kelas' => 'required',
             'jenis_kelamin' => 'required|in:L,P',
@@ -30,11 +25,6 @@ class SiswaController extends Controller
         Siswa::create($request->all());
 
         return redirect()->route('siswa.index')->with('success', 'Siswa berhasil ditambahkan.');
-    }
-
-    public function edit(Siswa $siswa)
-    {
-        return view('siswa.edit', compact('siswa'));
     }
 
     public function update(Request $request, Siswa $siswa)

@@ -12,37 +12,41 @@ class PenilaianController extends Controller
 {
     public function index()
     {
-        $kategori = Auth::user()->kategori_mapel;
-        $penilaians = Penilaian::where('mapel', $kategori)->get();
-        return view('penilaian.index', compact('penilaians'));
+        $mapels = Kriteria::select('mapel')->distinct()->pluck('mapel');
+        $siswas = Siswa::with('penilaian')->get();
+        $kriterias = Kriteria::all();
+
+        return view('penilaian.index', compact('mapels', 'siswas', 'kriterias'));
     }
 
-    public function create()
-    {
-        $kategori = Auth::user()->kategori_mapel;
-        $siswas = Siswa::all();
-        $kriterias = Kriteria::where('mapel', $kategori)->get();
-
-        return view('penilaian.create', compact('siswas', 'kriterias'));
-    }
 
     public function store(Request $request)
     {
         $request->validate([
-            'siswa_id' => 'required|exists:siswas,id',
+            'mapel' => 'required|string',
             'nilai' => 'required|array',
         ]);
 
-        foreach ($request->nilai as $kriteria_id => $nilai) {
-            Penilaian::create([
-                'siswa_id' => $request->siswa_id,
-                'kriteria_id' => $kriteria_id,
-                'nilai' => $nilai,
-                'mapel' => Auth::user()->kategori_mapel,
-                'penilai_id' => Auth::id(),
-            ]);
+        $mapel = $request->input('mapel');
+        $nilaiData = $request->input('nilai');
+        $penilaiId = Auth::id();
+
+        foreach ($nilaiData as $siswa_id => $kriterias) {
+            foreach ($kriterias as $kriteria_id => $nilai) {
+                Penilaian::updateOrCreate(
+                    [
+                        'id_siswa' => $siswa_id,
+                        'id_kriteria' => $kriteria_id,
+                        'mapel' => $mapel,
+                        'id_penilai' => $penilaiId,
+                    ],
+                    [
+                        'nilai' => $nilai
+                    ]
+                );
+            }
         }
 
-        return redirect()->route('penilaian.index')->with('success', 'Penilaian berhasil disimpan.');
+        return redirect()->back()->with('success', 'Nilai ' . strtoupper($mapel) . ' berhasil disimpan.');
     }
 }

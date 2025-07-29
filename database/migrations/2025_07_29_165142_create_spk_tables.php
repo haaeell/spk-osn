@@ -35,6 +35,7 @@ return new class extends Migration
             $table->foreignId('id_siswa')->constrained('siswa')->onDelete('cascade');
             $table->foreignId('id_kriteria')->constrained('kriteria')->onDelete('cascade');
             $table->foreignId('id_penilai')->constrained('users')->onDelete('cascade');
+            $table->enum('mapel', ['ipa', 'mtk', 'ips']);
             $table->float('nilai');
             $table->timestamps();
         });
