@@ -21,22 +21,27 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::middleware('role:admin')->group(function () {
     Route::resource('users', UserController::class)->except(['show']);
-    Route::resource('siswa', SiswaController::class);
-    Route::resource('kriteria', KriteriaController::class);
     Route::get('perhitungan', [PerhitunganController::class, 'index'])->name('perhitungan.index');
-    Route::get('penilaian', [PenilaianController::class, 'index'])->name('penilaian.index');
-    Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
-    Route::get('/riwayat/{tanggal}/detail', [RiwayatController::class, 'detail'])->name('riwayat.detail');
-    Route::get('/riwayat/{tanggal}/pdf', [RiwayatController::class, 'cetakPdf'])->name('riwayat.pdf');
-
-    Route::get('penilaian/create', [PenilaianController::class, 'create'])->name('penilaian.create');
-    Route::post('penilaian', [PenilaianController::class, 'store'])->name('penilaian.store');
-    Route::get('hasil', [HasilController::class, 'index'])->name('hasil.index');
-    Route::post('/hasil/simpan/{mapel}', [HasilController::class, 'simpan'])->name('hasil.simpan');
-    Route::get('/hasil/{id}/detail', [HasilController::class, 'detail'])->name('hasil.detail');
-    Route::get('/hasil/{id}/pdf', [HasilController::class, 'cetakPdf'])->name('hasil.pdf');
 });
 
-Route::middleware('role:penilai')->group(function () {});
+    Route::middleware('auth')->group(function () {
+        Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
+        Route::get('/riwayat/{tanggal}/detail', [RiwayatController::class, 'detail'])->name('riwayat.detail');
+        Route::get('/riwayat/{tanggal}/pdf', [RiwayatController::class, 'cetakPdf'])->name('riwayat.pdf');
+        Route::get('hasil', [HasilController::class, 'index'])->name('hasil.index');
+        Route::post('/hasil/simpan/{mapel}', [HasilController::class, 'simpan'])->name('hasil.simpan');
+        Route::get('/hasil/{id}/detail', [HasilController::class, 'detail'])->name('hasil.detail');
+        Route::get('/hasil/{id}/pdf', [HasilController::class, 'cetakPdf'])->name('hasil.pdf');
+        
+        Route::resource('siswa', SiswaController::class);
+        Route::resource('kriteria', KriteriaController::class);
+        
+        Route::get('penilaian', [PenilaianController::class, 'index'])->name('penilaian.index');
+    });
+
+Route::middleware('role:penilai')->group(function () {
+    Route::get('penilaian/create', [PenilaianController::class, 'create'])->name('penilaian.create');
+    Route::post('penilaian', [PenilaianController::class, 'store'])->name('penilaian.store');
+});
 
 Route::middleware('role:kepala_sekolah')->group(function () {});

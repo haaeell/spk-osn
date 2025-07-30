@@ -11,6 +11,7 @@
                         <thead class="table-primary">
                             <tr>
                                 <th>No</th>
+                                <th>Mata Pelajaran</th>
                                 <th>Perhitungan Ke-</th>
                                 <th>Tanggal Perhitungan</th>
                                 <th>Detail</th>
@@ -20,6 +21,7 @@
                             @forelse ($riwayat as $i => $row)
                                 <tr>
                                     <td>{{ $i + 1 }}</td>
+                                    <td>{{ strtoupper($row->mapel) }}</td>
                                     <td>Perhitungan ke-{{ $i + 1 }}</td>
                                     <td>{{ \Carbon\Carbon::parse($row->tanggal)->format('d M Y') }}</td>
                                     <td>

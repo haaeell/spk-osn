@@ -19,10 +19,13 @@
                         @endforeach
                     </div>
                     <div>
-                        <button class="btn btn-primary btn-rounded" data-bs-toggle="modal" data-bs-target="#kriteriaModal"
-                            onclick="openAddModal($('.mapel-tab.active').data('target').substring(1))">
-                            <i class="fas fa-plus me-2"></i>Tambah Kriteria
-                        </button>
+                        @if (Auth::user()->role == 'admin')
+                            <button class="btn btn-primary btn-rounded" data-bs-toggle="modal"
+                                data-bs-target="#kriteriaModal"
+                                onclick="openAddModal($('.mapel-tab.active').data('target').substring(1))">
+                                <i class="fas fa-plus me-2"></i>Tambah Kriteria
+                            </button>
+                        @endif
                     </div>
                 </div>
 
@@ -46,7 +49,9 @@
                                         <th class="text-center">No</th>
                                         <th class="text-center">Nama Kriteria</th>
                                         <th class="text-center">Bobot</th>
-                                        <th class="text-center">Aksi</th>
+                                        @if (Auth::user()->role == 'admin')
+                                            <th class="text-center">Aksi</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -55,18 +60,20 @@
                                             <td class="text-center">{{ $loop->iteration }}</td>
                                             <td class="text-center">{{ $kriteria->nama_kriteria }}</td>
                                             <td class="text-center">{{ $kriteria->bobot }}</td>
-                                            <td class="text-center">
-                                                <button class="btn btn-warning text-white btn-sm border me-1"
-                                                    data-bs-toggle="modal" data-bs-target="#kriteriaModal"
-                                                    onclick='openEditModal({{ json_encode($kriteria) }})'>
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-danger text-white btn-sm border"
-                                                    data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                    data-id="{{ $kriteria->id }}">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
+                                            @if (Auth::user()->role == 'admin')
+                                                <td class="text-center">
+                                                    <button class="btn btn-warning text-white btn-sm border me-1"
+                                                        data-bs-toggle="modal" data-bs-target="#kriteriaModal"
+                                                        onclick='openEditModal({{ json_encode($kriteria) }})'>
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger text-white btn-sm border"
+                                                        data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                        data-id="{{ $kriteria->id }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                 </tbody>

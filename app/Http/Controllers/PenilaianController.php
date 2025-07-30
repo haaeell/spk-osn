@@ -12,9 +12,10 @@ class PenilaianController extends Controller
 {
     public function index()
     {
-        $mapels = Kriteria::select('mapel')->distinct()->pluck('mapel');
+        $mapel = Auth::user()->kategori_mapel;
+        $mapels = Kriteria::where('mapel', $mapel)->select('mapel')->distinct()->pluck('mapel');
         $siswas = Siswa::with('penilaian')->get();
-        $kriterias = Kriteria::all();
+        $kriterias = Kriteria::where('mapel', $mapel)->get();
 
         return view('penilaian.index', compact('mapels', 'siswas', 'kriterias'));
     }

@@ -5,16 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\Hasil;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RiwayatController extends Controller
 {
     public function index()
     {
-        $riwayat = Hasil::select(DB::raw('DATE(created_at) as tanggal'))
-            ->groupBy('tanggal')
+        $query = Hasil::query();
+
+        if (Auth::user()->role === 'penilai') {
+            $kategoriMapel = Auth::user()->kategori_mapel;
+            $query->where('mapel', $kategoriMapel);
+        }
+
+        $riwayat = $query->select([
+            DB::raw('DATE(created_at) as tanggal'),
+            'mapel'
+        ])
+            ->groupBy('tanggal', 'mapel')
             ->orderByDesc('tanggal')
             ->get();
+
 
         return view('riwayat.index', compact('riwayat'));
     }

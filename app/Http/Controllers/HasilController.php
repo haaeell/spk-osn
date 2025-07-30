@@ -7,23 +7,32 @@ use App\Models\Siswa;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HasilController extends Controller
 {
     public function index()
     {
-        $mapels = ['mtk', 'ipa', 'ips'];
+        if (Auth::user()->role === 'penilai') {
+            $mapels = [Auth::user()->kategori_mapel];
+        } else {
+            $mapels = ['mtk', 'ipa', 'ips'];
+        }
+
         $hasilMapel = [];
 
         foreach ($mapels as $mapel) {
             $kriteria = Kriteria::where('mapel', $mapel)->get();
-            if ($kriteria->isEmpty()) continue;
+            if ($kriteria->isEmpty())
+                continue;
 
-            $siswa = Siswa::with(['penilaian' => function ($q) use ($mapel) {
-                $q->whereHas('kriteria', function ($q2) use ($mapel) {
-                    $q2->where('mapel', $mapel);
-                });
-            }])->get();
+            $siswa = Siswa::with([
+                'penilaian' => function ($q) use ($mapel) {
+                    $q->whereHas('kriteria', function ($q2) use ($mapel) {
+                        $q2->where('mapel', $mapel);
+                    });
+                }
+            ])->get();
 
             $dataHasil = [];
 
@@ -31,7 +40,8 @@ class HasilController extends Controller
                 $nilai = [];
                 foreach ($kriteria as $k) {
                     $n = $s->penilaian->firstWhere('id_kriteria', $k->id);
-                    if (!$n) continue 2;
+                    if (!$n)
+                        continue 2;
                     $nilai[] = [
                         'id_kriteria' => $k->id,
                         'nilai' => $n->nilai
@@ -126,13 +136,13 @@ class HasilController extends Controller
                 ];
             }
 
-            // Ranking
             usort($data, fn($a, $b) => $b['nilai_akhir'] <=> $a['nilai_akhir']);
 
             foreach ($data as $i => &$d) {
-                $row['peringkat'] = $i + 1;
-                $row['keterangan'] = $i == 0 ? '✅ Terpilih' : '❌ Tidak Terpilih';
+                $d['peringkat'] = $i + 1;
+                $d['keterangan'] = $i == 0 ? 'Terpilih' : 'Tidak Terpilih';
             }
+
 
             $hasilMapel[$mapel] = $data;
         }

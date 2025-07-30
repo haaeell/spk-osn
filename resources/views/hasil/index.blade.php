@@ -6,21 +6,21 @@
 
         {{-- Tabs --}}
         <div class="d-flex mb-4 gap-2">
-            @foreach (['mtk' => 'Matematika', 'ipa' => 'IPA', 'ips' => 'IPS'] as $key => $label)
+            @foreach ($hasilMapel as $key => $rows)
                 <button class="btn btn-outline-primary tab-btn"
-                    data-target="#tab-{{ $key }}">{{ $label }}</button>
+                    data-target="#tab-{{ $key }}">{{ strtoupper($key) }}</button>
             @endforeach
         </div>
 
         {{-- Tab Contents --}}
-        @foreach (['mtk' => 'Matematika', 'ipa' => 'IPA', 'ips' => 'IPS'] as $mapel => $namaMapel)
+        @foreach ($hasilMapel as $mapel => $data)
             <div class="tab-content" id="tab-{{ $mapel }}" style="display: none;">
                 <div class="card mb-5">
                     <div class="card-header p-3 text-dark">
-                        <strong>Peserta Terpilih OSN {{ strtoupper($namaMapel) }}</strong>
+                        <strong>Peserta Terpilih OSN {{ strtoupper($mapel) }}</strong>
                     </div>
                     <div class="card-body">
-                        @if (isset($hasilMapel[$mapel]) && count($hasilMapel[$mapel]) > 0)
+                        @if (count($data) > 0)
                             <div class="table-responsive">
                                 <table class="table table-bordered text-center">
                                     <thead class="table-primary">
@@ -34,7 +34,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($hasilMapel[$mapel] as $i => $row)
+                                        @foreach ($data as $i => $row)
                                             <tr>
                                                 <td>{{ $i + 1 }}</td>
                                                 <td>{{ $row['nama'] }}</td>
@@ -48,16 +48,16 @@
                                 </table>
 
                                 <form action="{{ route('hasil.simpan', ['mapel' => $mapel]) }}" method="POST"
-                                    class="mb-3">
+                                    class="mb-3 mt-3 ">
                                     @csrf
-                                    <button type="submit" class="btn btn-success">
+                                    <button type="submit" class="btn btn-success text-white">
                                         <i class="fas fa-save"></i> Simpan Hasil
                                     </button>
                                 </form>
                             </div>
                         @else
                             <div class="alert alert-warning text-center mb-0">
-                                Belum ada siswa yang dinilai untuk mapel {{ $namaMapel }}.
+                                Belum ada siswa yang dinilai untuk mapel {{ strtoupper($mapel) }}.
                             </div>
                         @endif
                     </div>

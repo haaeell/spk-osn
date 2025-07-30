@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Kriteria;
+use App\Models\Siswa;
 
 class HomeController extends Controller
 {
@@ -23,6 +26,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $jumlahUser = User::count();
+        $jumlahSiswa = Siswa::count();
+        $jumlahKriteria = Kriteria::count();
+        return view('home', compact('jumlahUser','jumlahKriteria','jumlahSiswa'));
     }
 }

@@ -22,7 +22,7 @@
                                 <i class="fas fa-database"></i> <i class="fas fa-user"></i>
                             </div>
                             <h6 class="fw-semibold mb-0">Jumlah Data Pengguna</h6>
-                            <div class="fs-3 fw-bold">3</div>
+                            <div class="fs-3 fw-bold">{{ $jumlahUser }}</div>
                         </div>
                         <div class="bg-light d-flex justify-content-between align-items-center px-3 py-2">
                             <span class="text-muted">Lihat Detail</span>
@@ -43,7 +43,7 @@
                                 <i class="fas fa-user-graduate"></i>
                             </div>
                             <h6 class="fw-semibold mb-0">Jumlah Data Siswa</h6>
-                            <div class="fs-3 fw-bold">100</div>
+                            <div class="fs-3 fw-bold">{{ $jumlahSiswa }}</div>
                         </div>
                         <div class="bg-light d-flex justify-content-between align-items-center px-3 py-2">
                             <span class="text-muted">Lihat Detail</span>
@@ -64,7 +64,7 @@
                                 <i class="fas fa-clipboard-check"></i>
                             </div>
                             <h6 class="fw-semibold mb-0">Jumlah Data Kriteria</h6>
-                            <div class="fs-3 fw-bold">5</div>
+                            <div class="fs-3 fw-bold">{{ $jumlahKriteria }}</div>
                         </div>
                         <div class="bg-light d-flex justify-content-between align-items-center px-3 py-2">
                             <span class="text-muted">Lihat Detail</span>

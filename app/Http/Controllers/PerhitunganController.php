@@ -12,42 +12,54 @@ class PerhitunganController extends Controller
 {
     public function index()
     {
-        $mapel = Auth::user()->kategori_mapel ?? 'mtk';
-        $penilaians = Penilaian::where('mapel', $mapel)->get();
+        $mapels = ['ipa', 'ips', 'mtk'];
+        $semua_hasil = [];
 
-        if ($penilaians->isEmpty()) {
-            return view('perhitungan.index', [
-                'message' => 'Belum ada siswa yang dinilai.',
-                'data' => null
-            ]);
-        }
+        foreach ($mapels as $mapel) {
+            $penilaians = Penilaian::where('mapel', $mapel)->get();
 
-        $kriterias = Kriteria::where('mapel', $mapel)->get();
-        $siswas = Siswa::with(['penilaian' => function ($q) use ($mapel) {
-            $q->where('mapel', $mapel);
-        }])->get();
-
-        $hasil = collect();
-
-        foreach ($siswas as $siswa) {
-            $total = 0;
-            foreach ($kriterias as $kriteria) {
-                $nilai = $siswa->penilaian->where('id_kriteria', $kriteria->id)->first()->nilai ?? 0;
-                $total += ($nilai / 100) * $kriteria->bobot;
+            if ($penilaians->isEmpty()) {
+                $semua_hasil[$mapel] = [
+                    'message' => 'Belum ada siswa yang dinilai.',
+                    'siswas' => [],
+                    'kriterias' => [],
+                    'hasil' => collect(),
+                ];
+                continue;
             }
 
-            $hasil->push([
-                'siswa' => $siswa,
-                'skor' => round($total, 4),
-            ]);
+            $kriterias = Kriteria::where('mapel', $mapel)->get();
+            $siswas = Siswa::with([
+                'penilaian' => function ($q) use ($mapel) {
+                    $q->where('mapel', $mapel);
+                }
+            ])->get();
+
+            $hasil = collect();
+
+            foreach ($siswas as $siswa) {
+                $total = 0;
+                foreach ($kriterias as $kriteria) {
+                    $nilai = $siswa->penilaian->where('id_kriteria', $kriteria->id)->first()->nilai ?? 0;
+                    $total += ($nilai / 100) * $kriteria->bobot;
+                }
+
+                $hasil->push([
+                    'siswa' => $siswa,
+                    'skor' => round($total, 4),
+                ]);
+            }
+
+            $semua_hasil[$mapel] = [
+                'message' => null,
+                'siswas' => $siswas,
+                'kriterias' => $kriterias,
+                'hasil' => $hasil,
+            ];
         }
 
         return view('perhitungan.index', [
-            'message' => null,
-            'mapel' => $mapel,
-            'siswas' => $siswas,
-            'kriterias' => $kriterias,
-            'hasil' => $hasil,
+            'semua_hasil' => $semua_hasil,
         ]);
     }
 }

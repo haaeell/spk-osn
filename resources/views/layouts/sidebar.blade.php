@@ -7,36 +7,50 @@
             </a>
         </li>
         <hr>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('users.index') }}">
-                <i class="fas fa-user menu-icon"></i>
-                <span class="menu-title">Data Pengguna</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('siswa.index') }}">
-                <i class="fas fa-users menu-icon"></i>
-                <span class="menu-title">Data Siswa</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('kriteria.index') }}">
-                <i class="fas fa-list-alt menu-icon"></i>
-                <span class="menu-title">Data Kriteria</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('penilaian.index') }}">
-                <i class="fas fa-calculator menu-icon"></i>
-                <span class="menu-title">Penilaian</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('perhitungan.index') }}">
-                <i class="fas fa-calculator menu-icon"></i>
-                <span class="menu-title">Perhitungan</span>
-            </a>
-        </li>
+        @if (Auth::user()->role == 'admin')
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('users.index') }}">
+                    <i class="fas fa-user menu-icon"></i>
+                    <span class="menu-title">Data Pengguna</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('siswa.index') }}">
+                    <i class="fas fa-users menu-icon"></i>
+                    <span class="menu-title">Data Siswa</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('kriteria.index') }}">
+                    <i class="fas fa-list-alt menu-icon"></i>
+                    <span class="menu-title">Data Kriteria</span>
+                </a>
+            </li>
+        @endif
+        @if (Auth::user()->role == 'kepala_sekolah')
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('siswa.index') }}">
+                    <i class="fas fa-users menu-icon"></i>
+                    <span class="menu-title">Data Siswa</span>
+                </a>
+            </li>
+        @endif
+        @if (Auth::user()->role == 'penilai')
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('penilaian.index') }}">
+                    <i class="fas fa-calculator menu-icon"></i>
+                    <span class="menu-title">Penilaian</span>
+                </a>
+            </li>
+        @endif
+        @if (Auth::user()->role == 'admin')
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('perhitungan.index') }}">
+                    <i class="fas fa-calculator menu-icon"></i>
+                    <span class="menu-title">Perhitungan</span>
+                </a>
+            </li>
+        @endif
         <li class="nav-item">
             <a class="nav-link" href="{{ route('hasil.index') }}">
                 <i class="fas fa-chart-bar menu-icon"></i>

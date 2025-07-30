@@ -8,10 +8,12 @@
                 <hr>
 
                 <div class="d-flex justify-content-end mb-3">
-                    <button class="btn btn-primary btn-rounded" data-bs-toggle="modal" data-bs-target="#siswaModal"
-                        onclick="openAddSiswa()">
-                        <i class="fas fa-plus me-2"></i>Tambah Siswa
-                    </button>
+                    @if (Auth::user()->role == 'admin')
+                        <button class="btn btn-primary btn-rounded" data-bs-toggle="modal" data-bs-target="#siswaModal"
+                            onclick="openAddSiswa()">
+                            <i class="fas fa-plus me-2"></i>Tambah Siswa
+                        </button>
+                    @endif
                 </div>
 
                 <table class="table table-bordered table-striped" id="siswaTable">
@@ -22,7 +24,9 @@
                             <th class="text-center">Nama</th>
                             <th class="text-center">Kelas</th>
                             <th class="text-center">Jenis Kelamin</th>
-                            <th class="text-center">Aksi</th>
+                            @if (Auth::user()->role == 'admin')
+                                <th class="text-center">Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -33,16 +37,20 @@
                                 <td class="text-center">{{ $siswa->nama }}</td>
                                 <td class="text-center">{{ $siswa->kelas }}</td>
                                 <td class="text-center">{{ $siswa->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-                                <td class="text-center">
-                                    <button class="btn btn-warning text-white btn-sm border me-1" data-bs-toggle="modal"
-                                        data-bs-target="#siswaModal" onclick='openEditSiswa(@json($siswa))'>
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-danger text-white btn-sm border"
-                                        data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ $siswa->id }}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
+                                @if (Auth::user()->role == 'admin')
+                                    <td class="text-center">
+                                        <button class="btn btn-warning text-white btn-sm border me-1" data-bs-toggle="modal"
+                                            data-bs-target="#siswaModal"
+                                            onclick='openEditSiswa(@json($siswa))'>
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger text-white btn-sm border"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                            data-id="{{ $siswa->id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>
