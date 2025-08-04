@@ -4,23 +4,58 @@
     <div class="container py-4">
         <h4 class="fw-bold mb-4">Hasil Akhir SPK (SMART)</h4>
 
+        @if (!empty($siswaKurangNilai))
+            <div class="alert alert-danger">
+                <strong>Perhatian:</strong> Beberapa siswa tidak memiliki penilaian lengkap dan tidak dihitung:
+                <ul class="mb-0 mt-2">
+                    @foreach ($siswaKurangNilai as $nama)
+                        <li>{{ $nama }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         {{-- Tabs --}}
         <div class="d-flex mb-4 gap-2">
-            @foreach ($hasilMapel as $key => $rows)
+            @foreach (['mtk' => 'Matematika', 'ipa' => 'IPA', 'ips' => 'IPS'] as $key => $label)
                 <button class="btn btn-outline-primary tab-btn"
-                    data-target="#tab-{{ $key }}">{{ strtoupper($key) }}</button>
+                    data-target="#tab-{{ $key }}">{{ $label }}</button>
             @endforeach
         </div>
 
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header">
+                <strong>Input Kuota Peserta per Mapel</strong>
+            </div>
+            <div class="card-body">
+                <form method="GET" class="row g-3 align-items-end">
+                    @foreach (['mtk' => 'Matematika', 'ipa' => 'IPA', 'ips' => 'IPS'] as $key => $label)
+                        <div class="col-sm-6 col-md-3">
+                            <label class="form-label">{{ $label }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-users"></i></span>
+                                <input type="number" name="kuota[{{ $key }}]" class="form-control" min="0"
+                                    value="{{ request('kuota.' . $key, 2) }}">
+                            </div>
+                        </div>
+                    @endforeach
+                    <div class="col-sm-6 col-md-3">
+                        <button class="btn btn-success w-100" type="submit">
+                            <i class="fas fa-filter"></i> Proses
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         {{-- Tab Contents --}}
-        @foreach ($hasilMapel as $mapel => $data)
+        @foreach (['mtk' => 'Matematika', 'ipa' => 'IPA', 'ips' => 'IPS'] as $mapel => $namaMapel)
             <div class="tab-content" id="tab-{{ $mapel }}" style="display: none;">
                 <div class="card mb-5">
                     <div class="card-header p-3 text-dark">
-                        <strong>Peserta Terpilih OSN {{ strtoupper($mapel) }}</strong>
+                        <strong>Peserta Terpilih OSN {{ strtoupper($namaMapel) }}</strong>
                     </div>
                     <div class="card-body">
-                        @if (count($data) > 0)
+                        @if (isset($hasilMapel[$mapel]) && count($hasilMapel[$mapel]) > 0)
                             <div class="table-responsive">
                                 <table class="table table-bordered text-center">
                                     <thead class="table-primary">
@@ -34,7 +69,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($data as $i => $row)
+                                        @foreach ($hasilMapel[$mapel] as $i => $row)
                                             <tr>
                                                 <td>{{ $i + 1 }}</td>
                                                 <td>{{ $row['nama'] }}</td>
@@ -48,16 +83,16 @@
                                 </table>
 
                                 <form action="{{ route('hasil.simpan', ['mapel' => $mapel]) }}" method="POST"
-                                    class="mb-3 mt-3 ">
+                                    class="mb-3">
                                     @csrf
-                                    <button type="submit" class="btn btn-success text-white">
+                                    <button type="submit" class="btn btn-success">
                                         <i class="fas fa-save"></i> Simpan Hasil
                                     </button>
                                 </form>
                             </div>
                         @else
                             <div class="alert alert-warning text-center mb-0">
-                                Belum ada siswa yang dinilai untuk mapel {{ strtoupper($mapel) }}.
+                                Belum ada siswa yang dinilai untuk mapel {{ $namaMapel }}.
                             </div>
                         @endif
                     </div>

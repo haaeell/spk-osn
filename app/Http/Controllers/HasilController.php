@@ -7,73 +7,92 @@ use App\Models\Siswa;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class HasilController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        if (Auth::user()->role === 'penilai') {
-            $mapels = [Auth::user()->kategori_mapel];
-        } else {
-            $mapels = ['mtk', 'ipa', 'ips'];
+        $mapels = ['mtk', 'ipa', 'ips'];
+        $kuota = [];
+        foreach ($mapels as $m) {
+            $kuota[$m] = (int) ($request->input("kuota.$m", 2));
         }
 
+        $kriterias = [];
+        foreach ($mapels as $mapel) {
+            $kriterias[$mapel] = Kriteria::where('mapel', $mapel)->get();
+        }
+
+        $siswas = Siswa::with('penilaian.kriteria')->get();
+
+        $hasilSementara = [];
+        $siswaKurangNilai = [];
+
+        foreach ($siswas as $siswa) {
+            $nilaiPerMapel = [];
+
+            foreach ($mapels as $mapel) {
+                $totalBobot = $kriterias[$mapel]->sum('bobot');
+                if ($totalBobot == 0) continue;
+
+                $nilaiSmart = 0;
+
+                foreach ($kriterias[$mapel] as $k) {
+                    $penilaian = $siswa->penilaian->firstWhere('id_kriteria', $k->id);
+                    if (!$penilaian) {
+                        $siswaKurangNilai[] = "{$siswa->nama} (Mapel: {$mapel})";
+                        continue 2; // langsung skip ke siswa berikutnya
+                    }
+                    $nilaiSmart += ($penilaian->nilai * $k->bobot) / 100;
+                }
+
+                $nilaiPerMapel[$mapel] = $nilaiSmart;
+            }
+
+            if (empty($nilaiPerMapel)) continue;
+
+            $mapelTerbaik = array_keys($nilaiPerMapel, max($nilaiPerMapel))[0];
+            $hasilSementara[$mapelTerbaik][] = [
+                'id' => $siswa->id,
+                'nama' => $siswa->nama,
+                'kelas' => $siswa->kelas,
+                'nilai_akhir' => $nilaiPerMapel[$mapelTerbaik]
+            ];
+        }
+
+        $terpilih = [];
         $hasilMapel = [];
 
         foreach ($mapels as $mapel) {
-            $kriteria = Kriteria::where('mapel', $mapel)->get();
-            if ($kriteria->isEmpty())
-                continue;
+            $siswaMapel = $hasilSementara[$mapel] ?? [];
+            usort($siswaMapel, fn($a, $b) => $b['nilai_akhir'] <=> $a['nilai_akhir']);
 
-            $siswa = Siswa::with([
-                'penilaian' => function ($q) use ($mapel) {
-                    $q->whereHas('kriteria', function ($q2) use ($mapel) {
-                        $q2->where('mapel', $mapel);
-                    });
-                }
-            ])->get();
+            $kuotaMapel = $kuota[$mapel] ?? 0;
+            $ranking = 1;
 
-            $dataHasil = [];
+            foreach ($siswaMapel as $s) {
+                if (in_array($s['id'], $terpilih)) {
+                    $s['peringkat'] = '-';
+                    $s['keterangan'] = '❌ Sudah Terpilih di Mapel Lain';
+                } else {
+                    $s['peringkat'] = $ranking++;
+                    $s['keterangan'] = count($hasilMapel[$mapel] ?? []) < $kuotaMapel
+                        ? '✅ Terpilih'
+                        : '❌ Tidak Terpilih';
 
-            foreach ($siswa as $s) {
-                $nilai = [];
-                foreach ($kriteria as $k) {
-                    $n = $s->penilaian->firstWhere('id_kriteria', $k->id);
-                    if (!$n)
-                        continue 2;
-                    $nilai[] = [
-                        'id_kriteria' => $k->id,
-                        'nilai' => $n->nilai
-                    ];
+                    if ($s['keterangan'] === '✅ Terpilih') {
+                        $terpilih[] = $s['id'];
+                    }
                 }
 
-                $totalBobot = $kriteria->sum('bobot');
-                $nilaiSmart = 0;
-
-                foreach ($nilai as $n) {
-                    $kri = $kriteria->firstWhere('id', $n['id_kriteria']);
-                    $nilaiSmart += ($n['nilai'] * $kri->bobot) / 100;
-                }
-
-                $dataHasil[] = [
-                    'nama' => $s->nama,
-                    'kelas' => $s->kelas,
-                    'nilai_akhir' => $nilaiSmart
-                ];
+                $hasilMapel[$mapel][] = $s;
             }
-
-            usort($dataHasil, fn($a, $b) => $b['nilai_akhir'] <=> $a['nilai_akhir']);
-            foreach ($dataHasil as $i => &$row) {
-                $row['peringkat'] = $i + 1;
-                $row['keterangan'] = $i == 0 ? '✅ Terpilih' : '❌ Tidak Terpilih';
-            }
-
-            $hasilMapel[$mapel] = $dataHasil;
         }
 
-        return view('hasil.index', compact('hasilMapel'));
+        return view('hasil.index', compact('hasilMapel', 'siswaKurangNilai'));
     }
+
+
 
     public function simpan(Request $request, $mapel)
     {
@@ -136,13 +155,13 @@ class HasilController extends Controller
                 ];
             }
 
+            // Ranking
             usort($data, fn($a, $b) => $b['nilai_akhir'] <=> $a['nilai_akhir']);
 
             foreach ($data as $i => &$d) {
-                $d['peringkat'] = $i + 1;
-                $d['keterangan'] = $i == 0 ? 'Terpilih' : 'Tidak Terpilih';
+                $row['peringkat'] = $i + 1;
+                $row['keterangan'] = $i == 0 ? '✅ Terpilih' : '❌ Tidak Terpilih';
             }
-
 
             $hasilMapel[$mapel] = $data;
         }
