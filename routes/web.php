@@ -24,20 +24,20 @@ Route::middleware('role:admin')->group(function () {
     Route::get('perhitungan', [PerhitunganController::class, 'index'])->name('perhitungan.index');
 });
 
-    Route::middleware('auth')->group(function () {
-        Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
-        Route::get('/riwayat/{tanggal}/detail', [RiwayatController::class, 'detail'])->name('riwayat.detail');
-        Route::get('/riwayat/{tanggal}/pdf', [RiwayatController::class, 'cetakPdf'])->name('riwayat.pdf');
-        Route::get('hasil', [HasilController::class, 'index'])->name('hasil.index');
-        Route::post('/hasil/simpan/{mapel}', [HasilController::class, 'simpan'])->name('hasil.simpan');
-        Route::get('/hasil/{id}/detail', [HasilController::class, 'detail'])->name('hasil.detail');
-        Route::get('/hasil/{id}/pdf', [HasilController::class, 'cetakPdf'])->name('hasil.pdf');
-        
-        Route::resource('siswa', SiswaController::class);
-        Route::resource('kriteria', KriteriaController::class);
-        
-        Route::get('penilaian', [PenilaianController::class, 'index'])->name('penilaian.index');
-    });
+Route::middleware('auth')->group(function () {
+    Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
+    Route::get('/riwayat/{tanggal}/detail', [RiwayatController::class, 'detail'])->name('riwayat.detail');
+    Route::get('/riwayat/{tanggal}/pdf', [RiwayatController::class, 'cetakPdf'])->name('riwayat.pdf');
+    Route::get('hasil', [HasilController::class, 'index'])->name('hasil.index');
+    Route::post('/hasil/simpan', [HasilController::class, 'simpan'])->name('hasil.simpan');
+    Route::get('/hasil/{id}/detail', [HasilController::class, 'detail'])->name('hasil.detail');
+    Route::get('/hasil/{id}/pdf', [HasilController::class, 'cetakPdf'])->name('hasil.pdf');
+
+    Route::resource('siswa', SiswaController::class);
+    Route::resource('kriteria', KriteriaController::class);
+
+    Route::get('penilaian', [PenilaianController::class, 'index'])->name('penilaian.index');
+});
 
 Route::middleware('role:penilai')->group(function () {
     Route::get('penilaian/create', [PenilaianController::class, 'create'])->name('penilaian.create');

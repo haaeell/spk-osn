@@ -28,13 +28,17 @@
             </div>
             <div class="card-body">
                 <form method="GET" class="row g-3 align-items-end">
+                    @php
+                        $defaultKuota = ['mtk' => 2, 'ipa' => 1, 'ips' => 2];
+                    @endphp
+
                     @foreach (['mtk' => 'Matematika', 'ipa' => 'IPA', 'ips' => 'IPS'] as $key => $label)
                         <div class="col-sm-6 col-md-3">
                             <label class="form-label">{{ $label }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-users"></i></span>
                                 <input type="number" name="kuota[{{ $key }}]" class="form-control" min="0"
-                                    value="{{ request('kuota.' . $key, 2) }}">
+                                    value="{{ request('kuota.' . $key, $defaultKuota[$key]) }}">
                             </div>
                         </div>
                     @endforeach
@@ -82,11 +86,14 @@
                                     </tbody>
                                 </table>
 
-                                <form action="{{ route('hasil.simpan', ['mapel' => $mapel]) }}" method="POST"
-                                    class="mb-3">
+                                <form action="{{ route('hasil.simpan') }}" method="POST" class="mb-3">
                                     @csrf
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="fas fa-save"></i> Simpan Hasil
+                                    @foreach (['mtk', 'ipa', 'ips'] as $m)
+                                        <input type="hidden" name="kuota[{{ $m }}]"
+                                            value="{{ request('kuota.' . $m, 2) }}">
+                                    @endforeach
+                                    <button type="submit" class="btn btn-success mt-3 text-white">
+                                        <i class="fas fa-save"></i> Simpan Semua Hasil
                                     </button>
                                 </form>
                             </div>

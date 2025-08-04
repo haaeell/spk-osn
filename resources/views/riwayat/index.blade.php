@@ -12,7 +12,6 @@
                             <tr>
                                 <th>No</th>
                                 <th>Mata Pelajaran</th>
-                                <th>Perhitungan Ke-</th>
                                 <th>Tanggal Perhitungan</th>
                                 <th>Detail</th>
                             </tr>
@@ -22,7 +21,6 @@
                                 <tr>
                                     <td>{{ $i + 1 }}</td>
                                     <td>{{ strtoupper($row->mapel) }}</td>
-                                    <td>Perhitungan ke-{{ $i + 1 }}</td>
                                     <td>{{ \Carbon\Carbon::parse($row->tanggal)->format('d M Y') }}</td>
                                     <td>
                                         <!-- Tombol Detail -->
@@ -55,6 +53,7 @@
                                                                 'created_at',
                                                                 $row->tanggal,
                                                             )
+                                                                ->where('mapel', $row->mapel)
                                                                 ->with('siswa')
                                                                 ->get();
                                                         @endphp
