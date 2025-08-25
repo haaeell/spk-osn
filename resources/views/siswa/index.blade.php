@@ -7,12 +7,35 @@
                 <h5 class="fw-bold mb-3">Data Siswa</h5>
                 <hr>
 
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+                @if (session('import_errors'))
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach (session('import_errors') as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div class="d-flex justify-content-end mb-3">
                     @if (Auth::user()->role == 'admin')
-                        <button class="btn btn-primary btn-rounded" data-bs-toggle="modal" data-bs-target="#siswaModal"
+                        <button class="btn btn-primary btn-rounded me-2" data-bs-toggle="modal" data-bs-target="#siswaModal"
                             onclick="openAddSiswa()">
                             <i class="fas fa-plus me-2"></i>Tambah Siswa
                         </button>
+                        <button class="btn btn-success btn-rounded me-2" data-bs-toggle="modal"
+                            data-bs-target="#importModal">
+                            <i class="fas fa-file-import me-2"></i>Import Excel
+                        </button>
+                        <a href="{{ route('siswa.template') }}" class="btn btn-info btn-rounded text-white">
+                            <i class="fas fa-download me-2"></i>Download Template
+                        </a>
                     @endif
                 </div>
 
@@ -109,6 +132,39 @@
                                     <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                     <button class="btn btn-primary" type="submit"><i
                                             class="fas fa-save me-2"></i>Simpan</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- Modal Import Excel --}}
+                <div class="modal fade" id="importModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <form method="POST" action="{{ route('siswa.import') }}" enctype="multipart/form-data">
+                            @csrf
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title"><i class="fas fa-file-import me-2"></i>Import Data Siswa</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Pilih File Excel</label>
+                                        <input type="file" class="form-control" name="file" accept=".xlsx,.xls"
+                                            required>
+                                        <small class="form-text text-muted">
+                                            File harus berformat .xlsx atau .xls dan mengandung kolom: nis, nama, kelas,
+                                            jenis_kelamin (L/P).
+                                            <a href="{{ route('siswa.template') }}">Download template</a>.
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-success"><i
+                                            class="fas fa-upload me-2"></i>Import</button>
                                 </div>
                             </div>
                         </form>

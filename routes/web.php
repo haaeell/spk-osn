@@ -33,6 +33,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/hasil/{id}/detail', [HasilController::class, 'detail'])->name('hasil.detail');
     Route::get('/hasil/{id}/pdf', [HasilController::class, 'cetakPdf'])->name('hasil.pdf');
 
+
+    Route::post('/siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
+    Route::get('/siswa/template', [SiswaController::class, 'downloadTemplate'])->name('siswa.template');
     Route::resource('siswa', SiswaController::class);
     Route::resource('kriteria', KriteriaController::class);
 

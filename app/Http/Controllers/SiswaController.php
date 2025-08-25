@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SiswaTemplateExport;
+use App\Imports\SiswaImport;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SiswaController extends Controller
 {
@@ -44,5 +47,24 @@ class SiswaController extends Controller
     {
         $siswa->delete();
         return redirect()->route('siswa.index')->with('success', 'Siswa berhasil dihapus.');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        try {
+            Excel::import(new SiswaImport, $request->file('file'));
+            return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil diimpor.');
+        } catch (\Exception $e) {
+            return redirect()->route('siswa.index')->with('error', 'Gagal mengimpor data: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new SiswaTemplateExport, 'siswa_template.xlsx');
     }
 }
