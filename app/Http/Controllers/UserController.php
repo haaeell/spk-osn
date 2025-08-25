@@ -31,7 +31,7 @@ class UserController extends Controller
             'email' => $data['email'],
             'password' => $data['password'],
             'role' => $data['role'],
-            'kategori_mapel' => $data['kategori_mapel']
+            'kategori_mapel' => $data['kategori_mapel'] ?? 'ips'
         ]);
 
         return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan.');
@@ -54,7 +54,7 @@ class UserController extends Controller
             'name' => $data['nama'],
             'email' => $data['email'],
             'role' => $data['role'],
-            'kategori_mapel' => $data['kategori_mapel']
+            'kategori_mapel' => $data['kategori_mapel'] ?? 'ips'
         ]);
 
         return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
